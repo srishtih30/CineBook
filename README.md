@@ -58,32 +58,6 @@ The stat tiles at the top come from `GET /admin/stats`. You can jump straight to
 
 The demo user is picked in the header ("Booking as") from `GET /users`.
 
-## Backend endpoints added
-
-Existing endpoints were not modified. Added to `main.py` / `schemas.py`:
-
-* **CORS middleware** so the browser can call the API from another port.
-* `GET /movies/{id}/shows` — shows for one movie (404 if the movie doesn't exist).
-* `GET /users/{id}/bookings` — a user's order history, seats aggregated with `json_agg`.
-* `GET /orders` — all booking orders (admin).
-* `GET /theatres` — theatres with seat counts (`LEFT JOIN … GROUP BY`).
-* `GET /admin/reports` — per-show occupancy, per-movie popularity (confirmed vs cancelled
-  seats using `COUNT … FILTER`), per-theatre capacity and value.
-* `POST /movies` — validated with `MovieCreate` (runtime 1–600 min).
-* `POST /shows` — validated with `ShowCreate` (price > 0). Locks the theatre row
-  (`SELECT … FOR UPDATE`) and rejects a show that overlaps another in the same theatre,
-  using start time + movie runtime → **409**.
-
-## Viva demo script (from the blueprint)
-
-1. Book **A1 + A2** for a show → ticket page shows order, seats and total.
-2. Open the same show again → A1, A2 are greyed out (booked).
-3. Switch user in the header, select **A2 + A3**, confirm → **409**, nothing is booked
-   (rollback), A3 is still free.
-4. Open the first order → **Cancel this booking** → seats become available again.
-5. **Admin** → stats, occupancy and the order list update.
-6. **Admin → Manage catalogue** → add a movie, then schedule a show that overlaps an
-   existing one in the same theatre → **409**; move it later → it appears on the Movies page.
 
 ## Files
 
